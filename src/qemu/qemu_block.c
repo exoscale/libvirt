@@ -1819,7 +1819,9 @@ qemuBlockGetBackingStoreString(virStorageSource *src,
             src->ncookies == 0 &&
             src->sslverify == VIR_TRISTATE_BOOL_ABSENT &&
             src->timeout == 0 &&
-            src->readahead == 0) {
+            src->readahead == 0 &&
+            src->reconnectDelay == 0 &&
+            src->openTimeout == 0) {
 
             switch ((virStorageNetProtocol) src->protocol) {
             case VIR_STORAGE_NET_PROTOCOL_NBD:
