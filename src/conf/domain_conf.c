@@ -7024,12 +7024,19 @@ virDomainDiskSourceNetworkParse(xmlNodePtr node,
         src->tlsFromConfig = !!value;
     }
 
-     if (src->protocol == VIR_STORAGE_NET_PROTOCOL_NBD) {
-        if (virXMLPropUInt(node, "reconnectDelay", 10, VIR_XML_PROP_NONE, &src->reconnectDelay) < 0 ||
-            virXMLPropUInt(node, "openTimeout", 10, VIR_XML_PROP_NONE, &src->openTimeout) < 0) {
-                virReportError(VIR_ERR_XML_ERROR, "%s",
-                            _("invalid reconnectDelay or openTimeout"));
-            return -1;
+    if (src->protocol == VIR_STORAGE_NET_PROTOCOL_NBD) {
+        xmlNodePtr cur;
+        if ((cur = virXPathNode("./reconnect", ctxt))) {
+            virTristateBool enabled;
+            if (virXMLPropTristateBool(cur, "enabled", VIR_XML_PROP_NONE,
+                                        &enabled) < 0)
+                return -1;
+
+            if (enabled == VIR_TRISTATE_BOOL_YES) {
+                if (virXMLPropUInt(cur, "delay", 10, VIR_XML_PROP_REQUIRED,
+                                    &src->reconnectDelay) < 0)
+                    return -1;
+            }
         }
     }
 
@@ -21713,12 +21720,6 @@ virDomainDiskSourceFormatNetwork(virBuffer *attrBuf,
     if (flags & VIR_DOMAIN_DEF_FORMAT_STATUS)
         virBufferAsprintf(attrBuf, " tlsFromConfig='%d'", src->tlsFromConfig);
 
-    if (src->reconnectDelay)
-        virBufferAsprintf(attrBuf, " reconnectDelay='%u'", src->reconnectDelay);
-
-    if (src->openTimeout)
-        virBufferAsprintf(attrBuf, " openTimeout='%u'", src->openTimeout);
-
     for (n = 0; n < src->nhosts; n++) {
         virBufferAddLit(childBuf, "<host");
         virBufferEscapeString(childBuf, " name='%s'", src->hosts[n].name);
@@ -21744,6 +21745,9 @@ virDomainDiskSourceFormatNetwork(virBuffer *attrBuf,
         virBufferAddLit(childBuf, "/>\n");
     }
 
+    if (src->reconnectDelay) {
+        virBufferAsprintf(childBuf, "<reconnect enabled='yes' delay='%u'/>\n", src->reconnectDelay);
+    }
 
     virBufferEscapeString(childBuf, "<snapshot name='%s'/>\n", src->snapshot);
     virBufferEscapeString(childBuf, "<config file='%s'/>\n", src->configFile);

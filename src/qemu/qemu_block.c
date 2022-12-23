@@ -531,7 +531,6 @@ qemuBlockStorageSourceGetNBDProps(virStorageSource *src,
                               "S:tls-creds", tlsAlias,
                               "S:tls-hostname", tlsHostname,
                               "p:reconnect-delay", src->reconnectDelay,
-                              "p:open-timeout", src->openTimeout,
                               NULL) < 0)
         return NULL;
 
@@ -1820,8 +1819,7 @@ qemuBlockGetBackingStoreString(virStorageSource *src,
             src->sslverify == VIR_TRISTATE_BOOL_ABSENT &&
             src->timeout == 0 &&
             src->readahead == 0 &&
-            src->reconnectDelay == 0 &&
-            src->openTimeout == 0) {
+            src->reconnectDelay == 0) {
 
             switch ((virStorageNetProtocol) src->protocol) {
             case VIR_STORAGE_NET_PROTOCOL_NBD:

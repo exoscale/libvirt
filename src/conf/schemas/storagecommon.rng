@@ -61,6 +61,11 @@
           <ref name="unsignedInt"/>
         </attribute>
       </optional>
+      <optional>
+        <attribute name="delay">
+          <ref name="unsignedInt"/>
+        </attribute>
+      </optional>
     </element>
   </define>
 

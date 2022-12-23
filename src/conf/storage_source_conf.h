@@ -290,10 +290,9 @@ struct _virStorageSource {
     unsigned long long readahead; /* size of the readahead buffer in bytes */
     unsigned long long timeout; /* connection timeout in seconds */
 
-    /* NBD QEMU reconnect-delay, open-timeout options */
-    /* both values below have 0 as default value */
+    /* NBD QEMU reconnect-delay option,
+     * 0 as default value */
     unsigned int reconnectDelay;
-    unsigned int openTimeout;
 
     virStorageSourceNVMeDef *nvme; /* type == VIR_STORAGE_TYPE_NVME */
 
